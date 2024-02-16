@@ -1,0 +1,27 @@
+#!/usr/bin/env -S jq --run-tests
+
+include "zoom"; zoom(1)
+[1, 2]
+[1.5]
+
+include "zoom"; zoom(2)
+[1, 2]
+[1, 2]
+
+include "zoom"; zoom(3)
+[1, 2]
+[1, 1.5, 2]
+
+################
+
+include "zoom"; scale(1)
+[1, 2]
+[1.5]
+
+include "zoom"; scale(2)
+[1, 2]
+[1, 2]
+
+include "zoom"; scale(3)
+[1, 2]
+[1, 1.5, 2]
