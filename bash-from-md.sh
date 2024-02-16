@@ -7,4 +7,4 @@ awkf () { awk "$@" "${awk[${FUNCNAME[1]}]}"; }
 
 bash-from-md () { awkf -v n=${1:?}; }
 
-bash-from-md.list () { echo awkf bash-from-md; }
+bash-from-md.list () { echo awk awkf bash-from-md; }

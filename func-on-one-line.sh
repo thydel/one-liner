@@ -15,4 +15,6 @@ func-on-one-line ()
 }
 alias func='func-on-one-line '
 
-func-on-one-line.list () { echo func-on-one-line; }
+item () { declare -p $1 &> /dev/null && declare -p $1; func $1; }
+
+func-on-one-line.list () { echo func-on-one-line item; }
