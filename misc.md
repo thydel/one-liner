@@ -11,6 +11,7 @@ funcs () { for file in ${files[@]}; do $file.list; done; }
 ```console
 $ sources; funcs | loop args | loop func
 with () { until [[ $# == 1 || $1 == -- ]]; do with.decl $1; shift; done; if [[ $1 == -- ]]; then shift; fi; with.decl $1; echo $@; };
+with.decl () { declare -p $1 &> /dev/null && declare -p $1; declare -f $1; };
 func-on-one-line () { local -n a=MAPFILE; mapfile -t < <(declare -f ${1:?}); ((${#a[*]})) || return 1; local i t; for ((i = 2; i < $((${#a[*]} - 1)); ++i)) do t=${a[(($i + 1))]}; printf -v n -- ${t/\%/%%}; [[ ${#n} == 1 && ${n:(-1)} == "}" ]] || [[ ${#n} == 2 && ${n:(-2)} == "};" ]] && a[$i]+=";"; done; a[-1]+=';'; echo ${a[@]}; };
 args () { for arg in "$@"; do echo $arg; done; };
 loop () { while read; do eval "$@" $REPLY; done; };
