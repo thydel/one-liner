@@ -10,7 +10,7 @@
     -   [Clean current workspace](#clean-current-workspace)
     -   [Source the tool](#source-the-tool)
     -   [Use it to source stanza `syslog-by-hours` from `with.md`](#use-it-to-source-stanza-syslog-by-hours-from-withmd)
-    -   [Use thse sourced stanza](#use-thse-sourced-stanza)
+    -   [Use the sourced stanza](#use-the-sourced-stanza)
 
 # What ?
 
@@ -168,11 +168,15 @@ source bash-from-md.sh
 
 ## Use it to source stanza `syslog-by-hours` from `with.md`
 
+- See [with.md][]
+
 ```bash
 source <(< with.md bash-from-md syslog-by-hours)
 ```
 
-## Use thse sourced stanza
+[with.md]: with.md "sibling file"
+
+## Use the sourced stanza
 
 ```console
 $ with ${lib[@]} | ssh localhost -l root bash | fmt
