@@ -41,7 +41,7 @@ source with.sh
 with jq jqf syslogs epochs by-hours -- syslogs | ssh localhost -l root bash | head
 ```
 
-- Default to callin the last arg of `with`
+- Default to call the last arg of `with`
 
 ```console
 $ with jq jqf syslogs epochs by-hours | ssh localhost -l root bash | fmt
