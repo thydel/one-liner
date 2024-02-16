@@ -1,3 +1,5 @@
+shopt -s extglob
+
 func-on-one-line () 
 { 
     local -n a=MAPFILE;
@@ -11,7 +13,8 @@ func-on-one-line ()
         [[ ${#n} == 1 && ${n:(-1)} == "}" ]] || [[ ${#n} == 2 && ${n:(-2)} == "};" ]] && a[$i]+=";";
     done;
     a[-1]+=';';
-    echo ${a[@]}
+    a=("${a[@]% }");
+    echo "${a[@]##*( )}";
 }
 alias func='func-on-one-line '
 
