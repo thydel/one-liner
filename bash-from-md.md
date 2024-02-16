@@ -1,52 +1,35 @@
 # Extract bash stanzas from mardown files
 
-- To be used as `source <(< file.md bash-from-md)`
-- But we need a way to name stanzas
-- Maybe something like
+- See [bash-from-md.sh][] and [bash-from-md.awk][]
+
+## Clean current workspace
 
 ```bash
-: name=example
-example=42
+exec bash
 ```
 
-- Then we could use `source <(< bash-from-md.md bash-from-md example)`
+## Source the tool
 
-## Funcs
+```
+source bash-from-md.sh
+```
+
+## Use it to source stanza `syslog-by-hours` from `with.md`
 
 ```bash
-declare -A awk=()
-awk[bash-from-md]='BEGIN { i = 0 } /^```bash/ { ++b; next } /^```$/ { --b; ++i } '
-awk[bash-from-md]+='b { t[i] = t[i] $0 RS } END { print t[n] }'
-
-awkf () { awk "$@" "${awk[${FUNCNAME[1]}]}"; }
-
-bash-from-md () { awkf -v n=${1:-0}; }
+source <(< with.md bash-from-md syslog-by-hours)
 ```
 
-## Play
+## Use thse sourced stanza
 
 ```console
-$ < with.md bash-from-md
-declare -A jq=()
-# Get epochs from syslog lines
-jq[epochs]='./"." | first | strptime("%Y-%m-%dT%H:%M:%S") | mktime'
-# Count syslog lines by hours
-jq[by-hours]='map(gmtime) | group_by(.[3]) | map(length)[]'
-
-# Use jq code associated with a func
-jqf () { jq -M "${jq[${FUNCNAME[1]}]}" "$@"; }
-
-# All compressed and uncompressed syslog files concatenated
-syslogs () { zgrep . /var/log/syslog* | cut -d: -f2-; }
-
-# Use our jq code
-epochs () { syslogs | jqf -R | sort -n; }
-by-hours () { epochs | jqf -s; }
-
-$ < with.md bash-from-md 1
-source with.sh
-lib=(jq jqf syslogs epochs by-hours)
+$ with ${lib[@]} | ssh localhost -l root bash | fmt
+1463 689 415 421 420 681 494 770 1267 7902 1920 849 2174 2189 5233 1428
+813 1321 5039 4499 1810 1037 1013 1093
 ```
+
+[bash-from-md.sh]: bash-from-md.sh "sibling file"
+[bash-from-md.awk]: bash-from-md.awk "sibling file"
 
 [Local Variables:]::
 [indent-tabs-mode: nil]::

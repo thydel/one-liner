@@ -10,6 +10,8 @@
   files on any remote node (using `ssh localhost` to demo)
 
 ```bash
+: name=syslog-by-hours
+
 declare -A jq=()
 # Get epochs from syslog lines
 jq[epochs]='./"." | first | strptime("%Y-%m-%dT%H:%M:%S") | mktime'
@@ -32,6 +34,8 @@ by-hours () { epochs | jqf -s; }
 - use `with`
 
 ```bash
+: name=syslog-by-hours
+
 source with.sh
 lib=(jq jqf syslogs epochs by-hours)
 ```

@@ -1,3 +1,17 @@
+-   [What ?](#what-)
+-   [Project selected vars and func as bash workspace](#project-selected-vars-and-func-as-bash-workspace)
+    -   [Workspace](#workspace)
+    -   [Play it on remote node](#play-it-on-remote-node)
+    -   [Add a local minimal plot](#add-a-local-minimal-plot)
+-   [Output func on one line](#output-func-on-one-line)
+-   [Allow easy copy-paste and on the fly edition](#allow-easy-copy-paste-and-on-the-fly-edition)
+-   [Misc funcs](#misc-funcs)
+-   [Extract bash stanzas from mardown files](#extract-bash-stanzas-from-mardown-files)
+    -   [Clean current workspace](#clean-current-workspace)
+    -   [Source the tool](#source-the-tool)
+    -   [Use it to source stanza `syslog-by-hours` from `with.md`](#use-it-to-source-stanza-syslog-by-hours-from-withmd)
+    -   [Use thse sourced stanza](#use-thse-sourced-stanza)
+
 # What ?
 
 Some one-liner or minimalist `bash`, `jq` and `awk`stuff
@@ -14,6 +28,8 @@ Some one-liner or minimalist `bash`, `jq` and `awk`stuff
   files on any remote node (using `ssh localhost` to demo)
 
 ```bash
+: name=syslog-by-hours
+
 declare -A jq=()
 # Get epochs from syslog lines
 jq[epochs]='./"." | first | strptime("%Y-%m-%dT%H:%M:%S") | mktime'
@@ -36,6 +52,8 @@ by-hours () { epochs | jqf -s; }
 - use `with`
 
 ```bash
+: name=syslog-by-hours
+
 source with.sh
 lib=(jq jqf syslogs epochs by-hours)
 ```
@@ -114,7 +132,7 @@ source <(func func | sed s/^func-on-one-line/fool/)
 - See [misc.sh][]
 
 ```bash
-files=(with func-on-one-line misc)
+files=(with func-on-one-line misc bash-from-md)
 sources () { for file in ${files[@]}; do source $file.sh; done; }
 funcs () { for file in ${files[@]}; do $file.list; done; }
 ```
@@ -126,57 +144,42 @@ with.decl () { declare -p $1 &> /dev/null && declare -p $1; declare -f $1; };
 func-on-one-line () { local -n a=MAPFILE; mapfile -t < <(declare -f ${1:?}); ((${#a[*]})) || return 1; local i t; for ((i = 2; i < $((${#a[*]} - 1)); ++i)) do t=${a[(($i + 1))]}; printf -v n -- ${t/\%/%%}; [[ ${#n} == 1 && ${n:(-1)} == "}" ]] || [[ ${#n} == 2 && ${n:(-2)} == "};" ]] && a[$i]+=";"; done; a[-1]+=';'; echo ${a[@]}; };
 args () { for arg in "$@"; do echo $arg; done; };
 loop () { while read; do eval "$@" $REPLY; done; };
+awkf () { awk "$@" "${awk[${FUNCNAME[1]}]}"; };
+bash-from-md () { awkf -v n=${1:?}; };
 ```
 
 [misc.sh]: misc.sh "sibling file"
 
 # Extract bash stanzas from mardown files
 
-- To be used as `source <(< file.md bash-from-md)`
-- But we need a way to name stanzas
-- Maybe something like
+- See [bash-from-md.sh][] and [bash-from-md.awk][]
+
+## Clean current workspace
 
 ```bash
-: name=example
-example=42
+exec bash
 ```
 
-- Then we could use `source <(< bash-from-md.md bash-from-md example)`
+## Source the tool
 
-## Funcs
+```
+source bash-from-md.sh
+```
+
+## Use it to source stanza `syslog-by-hours` from `with.md`
 
 ```bash
-declare -A awk=()
-awk[bash-from-md]='BEGIN { i = 0 } /^```bash/ { ++b; next } /^```$/ { --b; ++i } '
-awk[bash-from-md]+='b { t[i] = t[i] $0 RS } END { print t[n] }'
-
-awkf () { awk "$@" "${awk[${FUNCNAME[1]}]}"; }
-
-bash-from-md () { awkf -v n=${1:-0}; }
+source <(< with.md bash-from-md syslog-by-hours)
 ```
 
-## Play
+## Use thse sourced stanza
 
 ```console
-$ < with.md bash-from-md
-declare -A jq=()
-# Get epochs from syslog lines
-jq[epochs]='./"." | first | strptime("%Y-%m-%dT%H:%M:%S") | mktime'
-# Count syslog lines by hours
-jq[by-hours]='map(gmtime) | group_by(.[3]) | map(length)[]'
-
-# Use jq code associated with a func
-jqf () { jq -M "${jq[${FUNCNAME[1]}]}" "$@"; }
-
-# All compressed and uncompressed syslog files concatenated
-syslogs () { zgrep . /var/log/syslog* | cut -d: -f2-; }
-
-# Use our jq code
-epochs () { syslogs | jqf -R | sort -n; }
-by-hours () { epochs | jqf -s; }
-
-$ < with.md bash-from-md 1
-source with.sh
-lib=(jq jqf syslogs epochs by-hours)
+$ with ${lib[@]} | ssh localhost -l root bash | fmt
+1463 689 415 421 420 681 494 770 1267 7902 1920 849 2174 2189 5233 1428
+813 1321 5039 4499 1810 1037 1013 1093
 ```
+
+[bash-from-md.sh]: bash-from-md.sh "sibling file"
+[bash-from-md.awk]: bash-from-md.awk "sibling file"
 
