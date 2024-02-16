@@ -37,18 +37,19 @@ by-hours () { epochs | jqf -s; }
 
 ```bash
 source with.sh
+lib=(jq jqf syslogs epochs by-hours)
 ```
 
 - Call a specific func (e.g. for testing)
 
 ```bash
-with jq jqf syslogs epochs by-hours -- syslogs | ssh localhost -l root bash | head
+with ${lib[@]} -- syslogs | ssh localhost -l root bash | head
 ```
 
 - Default to call the last arg of `with`
 
 ```console
-$ with jq jqf syslogs epochs by-hours | ssh localhost -l root bash | fmt
+$ with ${lib[@]} | ssh localhost -l root bash | fmt
 1463 689 415 421 420 681 494 770 1267 7902 1920 849 2064 2091 5199 1401
 758 1282 4990 4468 1692 1037 1013 1093
 ```
@@ -58,7 +59,7 @@ $ with jq jqf syslogs epochs by-hours | ssh localhost -l root bash | fmt
 - See [zoom.jq][]
 
 ```bash
-with jq jqf syslogs epochs by-hours | ssh localhost -l root bash | jq -sr 'include "zoom"; plot(sqrt; 80; 20)'
+with ${lib[@]} | ssh localhost -l root bash | jq -sr 'include "zoom"; plot(sqrt; 80; 20)'
 ```
 
 ---
