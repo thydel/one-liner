@@ -16,11 +16,15 @@ source bash-from-md.sh
 
 ## Use it to source stanza `syslog-by-hours` from `with.md`
 
+- See [with.md][]
+
 ```bash
 source <(< with.md bash-from-md syslog-by-hours)
 ```
 
-## Use thse sourced stanza
+[with.md]: with.md "sibling file"
+
+## Use the sourced stanza
 
 ```console
 $ with ${lib[@]} | ssh localhost -l root bash | fmt
