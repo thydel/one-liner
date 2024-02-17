@@ -31,6 +31,6 @@ def scale($sizout):
 # Use zoom to plot an array
 
 def norm($ceil): max as $max | map(. / $max * $ceil | round);
-def plot: map([range(.)]) | transpose | map(map(if . == null then " " else "\u2588" end) | add) | reverse[];
+def plot: map([range(.)]) | transpose | map(map(if . == null then "\u2591" else "\u2588" end) | add) | reverse[];
 def plot(f; $x; $y): scale($x) | map(f) | norm($y) | plot;
 def plot($x; $y): plot(.; $x; $y);
