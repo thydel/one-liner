@@ -3,7 +3,7 @@
 - See [misc.sh][]
 
 ```bash
-files=(with func-on-one-line misc bash-from-md short.md)
+files=(with func-on-one-line misc bash-from-md short)
 sources () { for file in ${files[@]}; do source $file.sh; done; }
 items () { for file in ${files[@]}; do $file.list; done; }
 ```
