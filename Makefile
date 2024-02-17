@@ -1,8 +1,10 @@
 main: toc readme
 .PHONY: main
 
+mds := head with func-on-one-line misc bash-from-md short
+
 ~ := toc
-[ := head.md with.md func-on-one-line.md misc.md bash-from-md.md
+[ := $(mds:%=%.md)
 ] := tmp/$~.md
 $]: $] := { pandoc -f gfm -t gfm --$~ --template $~.md --columns=196; echo; }
 $]: $[ | $(dir $]); cat $^ | $($@) > $@

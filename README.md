@@ -11,6 +11,7 @@
     -   [Source the tool](#source-the-tool)
     -   [Use it to source stanza `syslog-by-hours` from `with.md`](#use-it-to-source-stanza-syslog-by-hours-from-withmd)
     -   [Use the sourced stanza](#use-the-sourced-stanza)
+-   [Concise version of `with`](#concise-version-of-with)
 
 # What ?
 
@@ -189,3 +190,30 @@ $ with ${lib[@]} | ssh localhost -l root bash | fmt
 [bash-from-md.sh]: bash-from-md.sh "sibling file"
 [bash-from-md.awk]: bash-from-md.awk "sibling file"
 
+# Concise version of `with`
+
+- See [short.sh][]
+- Concise by output not by src
+- Use `func-on-one-line` instead of `declare -f` in a modified `with`
+- Show a workspace as a sequence of item (var of func) each on a line
+
+```bash
+exec bash
+source bash-from-md.sh
+source <(< with.md bash-from-md syslog-by-hours)
+source short.sh
+```
+
+---
+
+```console
+$ short ${lib[@]}
+declare -A jq=([epochs]="./\".\" | first | strptime(\"%Y-%m-%dT%H:%M:%S\") | mktime" [by-hours]="map(gmtime) | group_by(.[3]) | map(length)[]" )
+jqf () { jq -M "${jq[${FUNCNAME[1]}]}" "$@"; };
+syslogs () { zgrep . /var/log/syslog* | cut -d: -f2-; };
+epochs () { syslogs | jqf -R | sort -n; };
+by-hours () { epochs | jqf -s; };
+by-hours
+```
+
+[short.sh]: short.sh "sibling file"
